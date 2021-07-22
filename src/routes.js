@@ -8,7 +8,10 @@ const prisma = new PrismaClient()
 routes.get('/videos', async (req, res) => {
     const videos = await prisma.video.findMany();
 
-    res.json(videos);
+    if(videos !== [])
+        res.status(200).json(videos);
+    else
+        res.status(204).send();
 });
 
 // GET /videos/1
@@ -21,32 +24,69 @@ routes.get('/videos/:id', async (req, res) => {
         }
     });
 
-    res.json(video);
+    if(video !== null)
+        res.status(200).json(video);
+    else
+        res.status(204).send();
 });
 
 // POST /videos
 routes.post('/videos', async (req, res) => {
     const { titulo, descricao, url } = req.body;
 
-    const result = await prisma.video.create({
-        data : {
-            titulo,
-            descricao,
-            url,
-        },
-    });
+    try {
+        const result = await prisma.video.create({
+            data : {
+                titulo,
+                descricao,
+                url,
+            },
+        });
 
-    res.json(result);
+        res.status(200).json(result);
+    } catch(error) {
+        res.json({ error: error});
+    }    
 });
 
 // PUT /videos
-/*routes.put('/videos', async (req, res) => {
-    
+routes.put('/videos/:id', async (req, res) => {
+    const { id } = req.params;
+    const { titulo, descricao, url } = req.body;
+
+    try {
+        const updatedRecord = await prisma.video.update({
+            where: {
+                id: Number(id),
+            },
+            data: {
+                titulo,
+                descricao,
+                url
+            },
+        });
+
+        res.json(updatedRecord);
+    } catch(error) {
+        res.status(204);
+    }   
 });
 
 // DELETE /videos/1
 routes.delete('/videos/:id', async (req, res) => {
-    
-});*/
+    const {id } = req.params;
+   
+    try {
+        const deletedVideo = await prisma.video.delete({
+            where: {
+                id: Number(id),
+            },
+        });
+
+        res.status(200).json(deletedVideo);
+   } catch(error) {
+        res.status(204).send();
+   }
+});
 
 module.exports = routes;
