@@ -10,9 +10,18 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Categoria {
+  id                      Int               @id @default(autoincrement())
+  titulo                  String
+  cor                     String
+  videos                  Video[]
+}
+
 model Video {
-  id        Int      @id @default(autoincrement())
-  titulo    String
-  descricao String
-  url       String
+  id                      Int               @id @default(autoincrement())
+  titulo                  String
+  descricao               String
+  url                     String
+  categoria               Categoria         @relation(fields: [categoria_id], references: [id])
+  categoria_id            Int               @default(1)
 }
