@@ -4,6 +4,10 @@ const { PrismaClient } = require('@prisma/client')
 const routes = express.Router();
 const prisma = new PrismaClient()
 
+// TODO:
+// Adicionar validação no POST e PUT
+// Definir o response.status do POST e PUT
+
 // GET /videos
 routes.get('/videos', async (req, res) => {
     const videos = await prisma.video.findMany();
@@ -32,44 +36,54 @@ routes.get('/videos/:id', async (req, res) => {
 
 // POST /videos
 routes.post('/videos', async (req, res) => {
-    const { titulo, descricao, url } = req.body;
+    const { titulo, descricao, url, categoria_id } = req.body;
 
-    try {
-        const result = await prisma.video.create({
-            data : {
-                titulo,
-                descricao,
-                url,
-            },
-        });
-
-        res.status(200).json(result);
-    } catch(error) {
-        res.json({ error: error});
-    }    
+    if(titulo === '' || descricao === '' || url === '')
+        res.status(400).json({ errorMessage: 'O campo é obrigatório' });
+    else {
+        try {
+            const result = await prisma.video.create({
+                data : {
+                    titulo,
+                    descricao,
+                    url,
+                    categoria_id,
+                },
+            });
+    
+            res.status(200).json(result);
+        } catch(error) {
+            res.status(400).json({ error: error });
+        } 
+    }       
 });
 
 // PUT /videos
 routes.put('/videos/:id', async (req, res) => {
     const { id } = req.params;
-    const { titulo, descricao, url } = req.body;
+    const { titulo, descricao, url, categoria_id } = req.body;
 
-    try {
-        const updatedRecord = await prisma.video.update({
-            where: {
-                id: Number(id),
-            },
-            data: {
-                titulo,
-                descricao,
-                url
-            },
-        });
+    if(titulo === '' || descricao === '' || url === '')
+        res.status(400).json({ errorMessage: 'O campo é obrigatório' });
+    else {
+        try {
+            const updatedRecord = await prisma.video.update({
+                where: {
+                    id: Number(id),
+                },
+                data: {
+                    titulo,
+                    descricao,
+                    url,
+                    categoria_id
+                },
+            });
 
-        res.json(updatedRecord);
-    } catch(error) {
-        res.status(204);
-    }   
+            res.status(200).json(updatedRecord);
+        } catch(error) {
+            res.status(400).json({ error: error });
+        }
+    }  
 });
 
 // DELETE /videos/1
