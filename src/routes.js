@@ -11,6 +11,7 @@ const prisma = new PrismaClient();
 
 routes.get('/categorias', CategoriaController.getAllCategories);
 routes.get('/categorias/:id', CategoriaController.getCategoriaById);
+routes.get('/categorias/:id/videos', CategoriaController.getAllVideosFromCategoryId);
 routes.post('/categorias', CategoriaController.createCategoria);
 routes.put('/categorias/:id', CategoriaController.updateCategoria);
 routes.delete('/categorias/:id', CategoriaController.deleteCategoriaById);

@@ -5,12 +5,29 @@ const prisma = new PrismaClient();
 module.exports = {
 
     async getAllVideos(req, res) {
-        const videos = await prisma.video.findMany();
+        const { search } = req.query;
 
-        if(videos !== [])
-            res.status(200).json(videos);
-        else
-            res.status(204).send();
+        if(search === undefined) {
+            const videos = await prisma.video.findMany();
+
+            if(videos !== [])
+                res.status(200).json(videos);
+            else
+                res.status(204).send();
+        } else {
+            const videos = await prisma.video.findMany({
+                where: {
+                    titulo: {
+                        contains: search,
+                    },
+                },
+            });
+
+            if(videos !== [])
+                res.status(200).json(videos);
+            else
+                res.status(204).send();
+        }
     },
 
     async getVideoById(req, res) {

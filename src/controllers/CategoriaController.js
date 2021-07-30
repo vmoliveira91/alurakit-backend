@@ -86,8 +86,26 @@ module.exports = {
 
             res.status(200).json(deletedCategoria);
         } catch(error) {
-                res.status(204).send();
+            res.status(204).send();
         }
+    },
+
+    async getAllVideosFromCategoryId(req, res) {
+        const { id } = req.params;
+
+        const result = await prisma.categoria.findUnique({
+            where: {
+                id: Number(id),
+            },
+            include: {
+                videos: true,
+            }
+        });
+
+        if(result.videos.length !== 0)
+            res.status(200).json(result.videos);
+        else
+            res.status(204).send(); 
     },
 
 }
