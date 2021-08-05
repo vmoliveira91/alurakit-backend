@@ -5,17 +5,18 @@ const prisma = new PrismaClient();
 module.exports = {
 
     async getAllVideos(req, res) {
-        const { search } = req.query;
+        const { search, page } = req.query;
+        let videos;
 
-        if(search === undefined) {
-            const videos = await prisma.video.findMany();
+        if(search === undefined && page === undefined) {
 
-            if(videos !== [])
-                res.status(200).json(videos);
-            else
-                res.status(204).send();
-        } else {
-            const videos = await prisma.video.findMany({
+            videos = await prisma.video.findMany();
+
+        } else if(search !== undefined && page !== undefined) {
+            
+            videos = await prisma.video.findMany({
+                skip: (Number(page) - 1) * 5,
+                take: 5,
                 where: {
                     titulo: {
                         contains: search,
@@ -23,26 +24,57 @@ module.exports = {
                 },
             });
 
-            if(videos !== [])
-                res.status(200).json(videos);
-            else
-                res.status(204).send();
+        } else if(search !== undefined && page === undefined){
+            
+            videos = await prisma.video.findMany({
+                where: {
+                    titulo: {
+                        contains: search,
+                    },
+                },
+            });
+
+        } else {
+
+            videos = await prisma.video.findMany({
+                skip: (Number(page) - 1) * 5,
+                take: 5,
+            });
+
         }
+
+        if(videos !== [])
+            res.status(200).json(videos);
+        else
+            res.status(204).send();
     },
 
     async getVideoById(req, res) {
         const { id } = req.params;
 
-        const video = await prisma.video.findUnique({
-            where: {
-                id: Number(id),
-            }
-        });
+        if(id === 'free') {
+            const videos = await prisma.video.findMany({
+                skip: Math.floor(Math.random() * 5) + 1,
+                take: 5,
+            });
 
-        if(video !== null)
-            res.status(200).json(video);
-        else
-            res.status(204).send();
+            if(videos !== null)
+                res.status(200).json(videos);
+            else
+                res.status(204).send();
+        } else {
+            const video = await prisma.video.findUnique({
+                where: {
+                    id: Number(id),
+                }
+            });
+    
+            if(video !== null)
+                res.status(200).json(video);
+            else
+                res.status(204).send();
+        }
+        
     },
 
     async createVideo(req, res) {

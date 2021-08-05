@@ -1,11 +1,9 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
 
 const CategoriaController = require('./controllers/CategoriaController');
 const VideoController = require('./controllers/VideoController');
 
 const routes = express.Router();
-const prisma = new PrismaClient();
 
 // CATEGORIA - routes
 

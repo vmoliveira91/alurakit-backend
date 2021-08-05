@@ -5,7 +5,21 @@ const prisma = new PrismaClient();
 module.exports = {
 
     async getAllCategories(req, res) {
-        const categorias = await prisma.categoria.findMany();
+        const { page } = req.query;
+        let categorias;
+
+        if(page === undefined) {
+            
+            categorias = await prisma.categoria.findMany();
+        
+        } else {
+
+            categorias = await prisma.categoria.findMany({
+                skip: (Number(page) - 1) * 5,
+                take: 5,
+            });
+
+        } 
 
         if(categorias !== [])
             res.status(200).json(categorias);
